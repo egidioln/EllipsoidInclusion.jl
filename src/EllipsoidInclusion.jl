@@ -6,9 +6,15 @@ using SpecialFunctions
 struct Ellipsoid{T<:Real,MT<:AbstractMatrix{T},VT<:AbstractVector{T}}
     P::MT
     c::VT
-    # function Ellipsoid{T,MT,VT}(P::MT,c::VT) where {T<:Real,MT<:AbstractMatrix{T},VT<:AbstractVector{T}}
-    #     new((P+P')./2,c)
-    # end
+    function Ellipsoid(P::MT,c::VT) where {T<:Real,MT<:AbstractMatrix{T},VT<:AbstractVector{T}}
+        P_ = (P+P')
+        if eigmin(P_) > 0
+            new{T,MT,VT}(P_./2,c)
+        else
+            error("P must be a positive definite matrix")
+        end
+
+    end
 end
 
 
@@ -23,6 +29,7 @@ end
 function Base.:∉(elli1::Ellipsoid, elli2::Ellipsoid)
     !(elli1 ∈ elli2)
 end
+
 
 function Base.in(elli1::Ellipsoid, elli2::Ellipsoid)
     e_max = eigmax(elli1.P-elli2.P)

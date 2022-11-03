@@ -17,6 +17,17 @@ println("Started test")
     @test EllipsoidInclusion.get_center(El0) == c0
     @test c0 ∈ El0
 
+    err = []
+    try
+        El0 = Ellipsoid(-1*P0, c0)
+    catch e
+        err = e
+    end
+
+    @test err isa Exception
+    @test sprint(showerror, err) == "P must be a positive definite matrix"
+
+
 end
 
 
