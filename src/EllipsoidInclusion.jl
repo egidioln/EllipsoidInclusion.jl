@@ -12,6 +12,17 @@ struct Ellipsoid{T<:Real,MT<:AbstractMatrix{T},VT<:AbstractVector{T}}
 end
 
 
+function Base.:*(elli::Ellipsoid, r::Real)
+    Ellipsoid(elli.P*(1/r), elli.c)
+end
+
+function Base.:*(r::Real, elli::Ellipsoid)
+    elli*r
+end
+
+function Base.:∉(elli1::Ellipsoid, elli2::Ellipsoid)
+    !(elli1 ∈ elli2)
+end
 
 function Base.in(elli1::Ellipsoid, elli2::Ellipsoid)
     e_max = eigmax(elli1.P-elli2.P)
