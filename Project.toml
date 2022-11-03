@@ -1,0 +1,15 @@
+name = "EllipsoidInclusion"
+uuid = "114502e3-65fc-4169-96d9-5583835b4467"
+authors = ["Lucas Egidio <lucasegidio1@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+
+[extras]
+SDPA = "b9a10b5b-afa4-512f-a053-bb3d8080febc"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["SDPA", "Test"]
