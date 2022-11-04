@@ -1,13 +1,15 @@
 
-using FileIO, JLD2
 using EllipsoidInclusion
 using Mosek
 using MosekTools
 using SDPA
 using JuMP
-using BenchmarkTools
 using LinearAlgebra
 using Printf
+using DataFrames
+using CSV
+using Random
+Random.seed!(1)
 
 
 opt_sdp_Mosek = optimizer_with_attributes(Mosek.Optimizer, MOI.Silent() => true)
@@ -31,8 +33,18 @@ function sdpApproach(elli1, elli2, optimizer)
          t(-P*c)    c'*P*c-1 ], PSDCone())
 
     optimize!(model)
-
-    solution_summary(model).termination_status == MOI.OPTIMAL
+    st = solution_summary(model).termination_status
+    if st == MOI.OPTIMAL
+        return 1
+    elseif st == MOI.INFEASIBLE || st == MOI.INFEASIBLE_OR_UNBOUNDED || dual_status(model) == MOI.INFEASIBILITY_CERTIFICATE
+        return 0
+    elseif st == MOI.SLOW_PROGRESS
+        return 2
+    elseif st == MOI.NUMERICAL_ERROR
+        return 3
+    else
+        return -1
+    end
 end
 
 function sdpApproachSDPA(elli1, elli2)
@@ -47,27 +59,22 @@ function ourApproach(elli1,elli2)
     elli1 ∈ elli2
 end
 
-function batch!(counter,ElSpan,El0Span, approach)
-    resOur = approach(ElSpan[counter[1]], El0Span[counter[1]])
-    counter[1] = counter[1]+1
-    resOur
-end
-
-
 
 ensureInside = false
 
 ElSpan = Dict()
 El0Span = Dict()
-results = Dict()
-nSpan = [3, 10, 30, 100]
+nSpan = [3, 10, 30,100] #, 100
 K=100
-res = []
+
+df = DataFrame(n=[], our_time=[], sdpa_time=[], mosek_time=[],  
+our_mem=[], sdpa_mem=[], mosek_mem=[],
+our_res=[], sdpa_res=[], mosek_res=[])
+
 for n = nSpan
     @printf "> Test for n = %d\n" n
     ElSpan[n] = []
     El0Span[n] = []
-    results[n] = Dict()
     for k=1:(K+1)
         aux = randn(n,n)
         P = aux'aux
@@ -81,16 +88,16 @@ for n = nSpan
         
         El0 = Ellipsoid(P0, c0)
         
-        c = randn(n)*0.5 + c0
+        c = randn(n)*0.1 + c0
         while c ∉ El0
-            c = randn(n)*0.2 + c0
+            c = randn(n)*0.1 + c0
         end
         if ensureInside
             while Ellipsoid(P, c) ∉ El0 # ensure not in
-                P = P*1.01             
+                P = P*1.1             
             end
         else
-            v = randn(n)*0.01
+            v = randn(n)*0.1
             while Ellipsoid(P, c) ∈ El0 # ensure not in
                 c+= v
             end
@@ -98,28 +105,21 @@ for n = nSpan
         El = Ellipsoid(P, c)
         push!(ElSpan[n],El)
         push!(El0Span[n],El0)
+        
     end
-    counter = [1]
-    ourBenchmark = @benchmarkable batch!($counter, $(ElSpan[n]), $(El0Span[n]), $ourApproach) 
-    @printf "our Started\n"
-    run(ourBenchmark, samples=1)
-    results[n]["our"] = run(ourBenchmark, samples=K)
 
-    counter = [1]
-    SDPABenchmark = @benchmarkable batch!($counter, $(ElSpan[n]), $(El0Span[n]), $sdpApproachSDPA) 
-    @printf "SDPA Started\n"
-    run(SDPABenchmark, samples=1)
-    results[n]["SDPA"] = run(SDPABenchmark, samples=K)
-
-    counter = [1]
-    MosekBenchmark = @benchmarkable batch!($counter, $(ElSpan[n]), $(El0Span[n]), $sdpApproachMosek) 
-    @printf "Mosek Started\n"
-    run(MosekBenchmark, samples=1)
-    results[n]["Mosek"] = run(MosekBenchmark, samples=K)
-    
-
-    push!(res, [n, results[n]["our"].times, results[n]["SDPA"].times, results[n]["Mosek"].times,
-    results[n]["our"].memory, results[n]["SDPA"].memory, results[n]["Mosek"].memory])
+    for k=1:(K+1)
+        @printf "case %d / %d\n" k (K+1)
+        tOur = @timed resOur = ourApproach(ElSpan[n][k], El0Span[n][k])
+        tSDPA = @timed resSDPA = sdpApproachSDPA(ElSpan[n][k], El0Span[n][k])
+        tMosek = @timed resMosek = sdpApproachMosek(ElSpan[n][k], El0Span[n][k])
+        if k>1
+            push!(df, [n, tOur.time, tSDPA.time,  tMosek.time,
+             tOur.bytes, tSDPA.bytes,  tMosek.bytes,  
+             resOur, resSDPA, resMosek])
+        end
+    end
 end
+filename = ensureInside ? "data_in.csv" :  "data_out.csv"
+CSV.write(filename, df)
 
-FileIO.save(ensureInside ? "data_el_in.jld2" :  "data_el_out.jld2", "res", res)
