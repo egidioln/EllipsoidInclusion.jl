@@ -60,11 +60,10 @@ function ourApproach(elli1,elli2)
 end
 
 
-ensureInside = false
-
+ensureInside = true
 ElSpan = Dict()
 El0Span = Dict()
-nSpan = [3, 10, 30,100] #, 100
+nSpan = [3, 10, 30] #, 100
 K=100
 
 df = DataFrame(n=[], our_time=[], sdpa_time=[], mosek_time=[],  
