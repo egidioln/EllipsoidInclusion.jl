@@ -44,6 +44,7 @@ end
     El0 = Ellipsoid(P0, c0)
 
     @test El ∈ El0
+    @test 6*El ∈ El0
     @test El0 ∈ El0
     @test 0.5*El0 ∈ El0
     @test 0.5*El ∈ El0
@@ -64,6 +65,7 @@ end
     El0 = Ellipsoid(P0, c0)
 
     @test El ∉ El0
+    @test El*0.05 ∉ El0
     @test El*10 ∉ El0
     @test El0*1.01 ∉ El0
     @test El ∉ El0*0.9
