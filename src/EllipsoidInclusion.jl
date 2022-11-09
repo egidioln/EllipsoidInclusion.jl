@@ -47,14 +47,17 @@ function Base.in(elli1::Ellipsoid, elli2::Ellipsoid)
         ct = specDecomp.vectors'*L*(elli1.c -elli2.c)
         α = 1/min(lb...)
 
-        polPos(β) = -(1-β + β*sum((lb./(1 .- β*lb)).*(ct.^2)))
+        polPos(β) = -(1-β + sum((β*lb./(1 .- β*lb)).*(ct.^2)))
+        dpolPos(β) = 1 - sum((lb./(1 .- β*lb).^2).*(ct.^2))
+        ddpolPos(β) = 2*sum((lb.^2 ./(1 .- β*lb).^3).*(ct.^2))
         if(α==1)
             return polPos(1)<=0
         end
-        if(α>1)
+        if(α>1-norm(ct)^2)
             return false
         end
-        (val, _) = bisection(polPos, interval=[α+1e-15, 1-norm(ct)^2], verbose=false, stopIfNegative=true)
+        #(val, _) = bisection(polPos, interval=[α+1e-15, 1-norm(ct)^2], verbose=false, stopIfNegative=true)
+        (val, _) = dbisection(polPos, dpolPos, ddpolPos, interval=[α+1e-15, 1-norm(ct)^2], verbose=false, stopIfNegative=true)
 
         return val<=0
     end
@@ -93,7 +96,7 @@ end
 
 
 function bisection(f::Function; interval=[0, 1],  δ=1e-8, verbose=false, stopIfNegative=false)
-    phi = (1+sqrt(5))/2;
+
     x = zeros(4)
     fval = zeros(4)
     x[1] = interval[1];
@@ -102,8 +105,8 @@ function bisection(f::Function; interval=[0, 1],  δ=1e-8, verbose=false, stopIf
     fval[1] = f(x[1]);
     fval[4] = f(x[4]);
      
-    x[2] = x[4] - (x[4]-x[1])/phi;
-    x[3] = x[1] + (x[4]-x[1])/phi;
+    x[2] = x[4] - (x[4]-x[1])/3;
+    x[3] = x[1] + (x[4]-x[1])/3;
     fval[2] = f(x[2]);
     fval[3] = f(x[3]);
     k=0;
@@ -135,6 +138,55 @@ function bisection(f::Function; interval=[0, 1],  δ=1e-8, verbose=false, stopIf
     end
     (_,im) = findmin(fval);
     (fval[im], x[im])
+end
+
+
+
+function dbisection(f::Function,df::Function,ddf::Function; interval=[0, 1],  δ=1e-8, verbose=false, stopIfNegative=false)
+
+    x = zeros(2)
+    fval = zeros(2)
+    dfval = zeros(2)
+    L = 0
+
+    x[1] = interval[1];
+    x[2] = interval[2];
+    
+    fval[1] = f(x[1]);
+    fval[2] = f(x[2]);
+    dfval[1] = df(x[1]);
+    dfval[2] = df(x[2]);
+    L = ddf(x[1]);
+    if dfval[2] < 0
+        return (fval[2],x[2])
+    end
+
+    β = (x[1] + x[2])/2
+    fβ = f(β);
+    dfβ = df(β);
+    k=0;
+    if (verbose)
+        println(string(dfval[1])*" "*string(dfval[2])*"    "*string(fβ))
+    end
+    while abs(x[1]-x[2])>δ && (!stopIfNegative || (fβ>0 && 2*fβ<-L*(x[2]-x[1])^2))
+        
+        if (verbose)
+            println(string(dfval[1])*" "*string(dfval[2])*"    "*string(fβ))
+        end
+        if(dfβ <0)
+            x[1] = β;
+            dfval[1] = dfβ;
+            L = ddf(β);
+        else
+            x[2] = β;
+            dfval[2] = dfβ;
+        end
+
+        β = (x[1] + x[2])/2
+        fβ = f(β);
+        dfβ = df(β);
+    end
+    (fβ, β)
 end
 
 export Ellipsoid
