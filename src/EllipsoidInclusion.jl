@@ -32,19 +32,20 @@ end
 
 
 function Base.in(elli1::Ellipsoid, elli2::Ellipsoid)
-    e_max = eigmax(elli1.P-elli2.P)
-    if e_max<0
+    e_min = eigmin(elli1.P-elli2.P)
+    if e_min<0
         return false
     elseif  elli1.c==elli2.c
-        return e_max>=0
+        return e_min>=0
     elseif !(elli1.c ∈ elli2)
         return false
     else 
-        L = cholesky((elli2.P+elli2.P')/2).U #TODO remove ' when Ellipsoid constructor fixed
-        P = L'\elli1.P/L;
+        L = cholesky((elli2.P+elli2.P')/2).L #TODO remove ' when Ellipsoid constructor fixed
+        P = L\elli1.P/L';
+        c = L'*(elli1.c -elli2.c)
         specDecomp = eigen(P)
         lb = specDecomp.values
-        ct = specDecomp.vectors'*L*(elli1.c -elli2.c)
+        ct = specDecomp.vectors'*c
         α = 1/min(lb...)
 
         polPos(β) = -(1-β + sum((β*lb./(1 .- β*lb)).*(ct.^2)))
