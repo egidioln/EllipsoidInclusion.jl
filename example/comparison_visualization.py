@@ -7,7 +7,7 @@ plt.rcParams.update({
     "font.family": "Helvetica"
 })
 
-inside = False
+inside = True
 good_res = 1 if inside == True else 0
 
 type = "in" if inside else "out"
@@ -17,7 +17,7 @@ res = ["our_res","sdpa_res","mosek_res"]
 time = ["our_time","sdpa_time","mosek_time"]
 mem = ["our_mem","sdpa_mem","mosek_mem"]
 
-plot_name = {"our_time":"Our Approach","sdpa_time":"LMIs+SDPA","mosek_time":"LMIs+Mosek"}
+plot_name = {"our_time":"Algorithm~1","sdpa_time":"LMIs+SDPA","mosek_time":"LMIs+Mosek"}
 handlers=data.boxplot(column=time, by="n", layout=(1,3),figsize=[5,2.4],return_type='dict')
 # for ax, t in zip(axs,time):
 
@@ -41,7 +41,7 @@ for h in handlers:
 		b.set_color("#202090")
 
 
-plt.suptitle("$\\mathcal{E} \\subset \\mathcal{E}_0$" if inside else "$\\mathcal{E} \\not\\subset \\mathcal{E}_0 $")
+plt.suptitle("$\\mathcal{E} \\subset {\\rm int}(\\mathcal{E}_0)$" if inside else "$\\mathcal{E} \\not\\subseteq \\mathcal{E}_0 $")
 plt.tight_layout()
 plt.savefig(f'boxplot_{type}.eps', format='eps')
 

@@ -63,6 +63,32 @@ function Base.in(elli1::Ellipsoid, elli2::Ellipsoid)
 end
 
 
+
+function get_ell(elli1::Ellipsoid, elli2::Ellipsoid)
+    L = cholesky((elli2.P+elli2.P')/2).U #TODO remove ' when Ellipsoid constructor fixed
+    P = L'\elli1.P/L;
+    specDecomp = eigen(P)
+    lb = specDecomp.values
+    ct = specDecomp.vectors'*L*(elli1.c -elli2.c)
+    α = 1/min(lb...)
+
+    polPos(β) = -(1-β + sum((β*lb./(1 .- β*lb)).*(ct.^2)))
+    dpolPos(β) = 1 - sum((lb./(1 .- β*lb).^2).*(ct.^2))
+    ddpolPos(β) = 2*sum((lb.^2 ./(1 .- β*lb).^3).*(ct.^2))
+
+    if(α>1-norm(ct)^2)
+        return false
+    end
+    ub = 1
+    while dpolPos(ub) > 0
+        ub*=2
+    end
+    (val, _) = dbisection(polPos, dpolPos, ddpolPos, interval=[α+1e-15, ub], verbose=false, stopIfNegative=true)
+
+    return val
+end
+
+
 function Base.in(x::AbstractVecOrMat, elli::Ellipsoid)
     return (x-elli.c)'elli.P*(x-elli.c) ≤ 1
 end
