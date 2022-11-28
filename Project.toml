@@ -1,10 +1,12 @@
-name = "EllipsoidInclusion"
+name = "Ellipsoids"
 uuid = "114502e3-65fc-4169-96d9-5583835b4467"
 authors = ["Lucas Egidio <lucasegidio1@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+LazySets = "b4f0291d-fe17-52bc-9479-3d1a343d9043"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [extras]

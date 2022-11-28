@@ -1,4 +1,5 @@
-include("..//src//Ellipsoids.jl")
+using Ellipsoids
+
 c = [1.5; 1.5]
 P = [4.0 0.5;       
      0.5 6.0]
@@ -14,7 +15,7 @@ println(Ellipsoids.intersect(El,El0))
 ell_ast, β_ast =  Ellipsoids.get_ℓ_ast_intersect(El, El0)
 Elnew = El0*(ell_ast)#Ellipsoids.Ellipsoid(P0, ell_ast*c0)
 
-plot()
+#plot()
 Ellipsoids.plot_ellipsoid!(El, label="El")
 Ellipsoids.plot_ellipsoid!(El0, label="El0")
 Ellipsoids.plot_ellipsoid!(Elnew, label="Elnew")
