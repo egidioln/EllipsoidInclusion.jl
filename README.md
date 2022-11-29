@@ -4,18 +4,16 @@
 | [![Build Status][build-img]][build-url] |
 | [![codecov][codecov-img]][codecov-url] |
 <!-- |  [![Codecov branch][codecov-img]][codecov-url] | -->
-[build-img]: https://github.com/egidioln/EllipsoidInclusion.jl/workflows/CI/badge.svg?branch=master
+[build-img]: https://github.com/egidioln/EllipsoidInclusion.jl/workflows/CI/badge.svg?branch=main
 [build-url]: https://github.com/egidioln/EllipsoidInclusion.jl/actions?query=workflow%3ACI
-[codecov-img]: https://codecov.io/gh/egidioln/EllipsoidInclusion.jl/branch/master/graph/badge.svg?token=8DUhQe22qD
+[codecov-img]: https://codecov.io/gh/egidioln/EllipsoidInclusion.jl/branch/main/graph/badge.svg?token=8DUhQe22qD
 [codecov-url]: https://codecov.io/gh/egidioln/EllipsoidInclusion.jl
-This is a Julia implementation of [this C++ library](https://github.com/egidi
+This is a Julia implementation of [this C++ library](https://github.com/egidioln/ellipsoidInclusion).
 
-oln/ellipsoidInclusion).
-
-This module implements a function that checks the inclusion of one n-ellipsoid in another. For a positive definite matrix $P\succ0\in\mathbb{R}^{n\times n}$ and a vector $c\in\mathbb{R}^{n}$, an *ellipsoid shaped by* $P$ *and cetered at* $c$ is defined as $E(P,c) := \\{x\in\mathbb{R}^{n}:(x-c)^\top P(x-c)\leq 1\\}$.
+This module implements a functions that checks the inclusion and intersection of one $n$-ellipsoid with another. For a positive definite matrix $P\succ0\in\mathbb{R}^{n\times n}$ and a vector $c\in\mathbb{R}^{n}$, an *ellipsoid shaped by* $P$ *and cetered at* $c$ is defined as $E(P,c) := \\{x\in\mathbb{R}^{n}:(x-c)^\top P(x-c)\leq 1\\}$.
 
 
-The method and exmaples implemented in this library are available in [this paper](https://arxiv.org/abs/2211.06237). Please, cite it as:
+The method and examples implemented in this library are available in [this paper](https://arxiv.org/abs/2211.06237). Please, cite it as:
 ```
 @misc{calbert2022efficient,
   doi = {10.48550/ARXIV.2211.06237},
