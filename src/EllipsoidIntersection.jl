@@ -1,4 +1,7 @@
 
+function Base.:∩(elli1::Ellipsoid, elli2::Ellipsoid)
+    intersect(elli1, elli2)
+end
 
 function intersect(elli1::Ellipsoid, elli2::Ellipsoid)
     if  elli1.c==elli2.c

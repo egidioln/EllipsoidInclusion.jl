@@ -1,7 +1,7 @@
 module TestMain
 using Test
-include("..//src//Ellipsoids.jl")
-#using Ellipsoid
+
+using Ellipsoids
 
 sleep(0.1) # used for good printing
 println("Started test")

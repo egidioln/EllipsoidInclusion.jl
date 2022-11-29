@@ -31,16 +31,6 @@ function Base.:/(elli::Ellipsoid, r::Real)
 end
 
 
-function Base.:∉(elli1::Ellipsoid, elli2::Ellipsoid)
-    !(elli1 ∈ elli2)
-end
-
-
-function Base.in(x::AbstractVecOrMat, elli::Ellipsoid)
-    return (x-elli.c)'elli.P*(x-elli.c) ≤ 1
-end
-
-
 function centerDistance(elli1::Ellipsoid,elli2::Ellipsoid)
     return norm(get_center(elli1)-get_center(elli2))
 end

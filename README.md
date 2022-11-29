@@ -1,4 +1,4 @@
-# EllipsoidInclusion.jl
+# Ellipsoids.jl
 
 This is a Julia implementation of [this C++ library](https://github.com/egidioln/ellipsoidInclusion).
 
@@ -17,3 +17,6 @@ The method and exmaples implemented in this library are available in [this paper
 }
 
 ```
+
+
+Some examples are still written in Python and some help rewriting them in Julia would be appreciated.

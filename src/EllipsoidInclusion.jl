@@ -1,5 +1,13 @@
 
 
+function Base.:∉(elli1::Ellipsoid, elli2::Ellipsoid)
+    !(elli1 ∈ elli2)
+end
+
+
+function Base.in(x::AbstractVecOrMat, elli::Ellipsoid)
+    return (x-elli.c)'elli.P*(x-elli.c) ≤ 1
+end
 
 function Base.in(elli1::Ellipsoid, elli2::Ellipsoid)
     e_min = eigmin(elli1.P-elli2.P)
